@@ -10,15 +10,38 @@ import InstaIcon from "../../assets/instagram.png";
 import YTIcon from "../../assets/youtube.png";
 import emailjs from "@emailjs/browser";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Contact = () => {
+  const [result, setResult] = React.useState("");
   const form = useRef();
 
-  const sendEmail = (e) => {
-    e.preventDefault();
+  const sendEmail = async (event) => {
+    event.preventDefault();
 
+    //web3 forms
+    setResult("Sending....");
+    const formData = new FormData(event.target);
+
+    formData.append("access_key", "38315efd-48bc-4fcf-9c15-b0861fcc61be");
+
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setResult("Form Submitted Successfully");
+      event.target.reset();
+    } else {
+      console.log("Error", data);
+      setResult(data.message);
+    }
+
+    //Email JS
     emailjs
       .sendForm(
         "service_8errcek",
@@ -29,7 +52,7 @@ const Contact = () => {
       .then(
         (result) => {
           console.log(result.text);
-          e.target.reset()
+          event.target.reset();
           // alert("Your Message Send !")
         },
         (error) => {
@@ -39,7 +62,7 @@ const Contact = () => {
   };
 
   const notify = () => {
-    toast.success('Submited successfully !', {
+    toast.success("Send !", {
       position: "top-center",
       autoClose: 5000,
       hideProgressBar: false,
@@ -48,9 +71,9 @@ const Contact = () => {
       draggable: true,
       progress: undefined,
       theme: "light",
-      });
-  }
-  
+    });
+  };
+
   return (
     <section id="contactPage">
       <div id="clients">
@@ -91,8 +114,14 @@ const Contact = () => {
             rows="5"
             placeholder="Your Message"
           ></textarea>
-          <button onClick={notify} type="submit" value="Send" className="submitBtn">
-            Submit
+          <span>{result}</span>
+          <button
+            onClick={notify}
+            type="submit"
+            value="Send"
+            className="submitBtn"
+          >
+            Send
           </button>
           <ToastContainer />
 
